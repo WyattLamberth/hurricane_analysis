@@ -1,0 +1,9 @@
+numpy
+pandas
+xarray
+netCDF4
+cdsapi
+matplotlib
+cartopy
+scipy
+scikit-learn
