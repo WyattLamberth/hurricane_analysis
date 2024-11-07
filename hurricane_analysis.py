@@ -1,188 +1,201 @@
-import pandas as pd
-import numpy as np
-from datetime import datetime
+import requests
+from pathlib import Path
+from tqdm import tqdm
 import os
+import pandas as pd
 
-def load_hurdat_data(filename):
+def download_sst_data(start_year, end_year, output_dir='climate_data'):
     """
-    Load and process HURDAT data
+    Download NOAA OISST daily mean data files for specified years
+    
+    Parameters:
+    -----------
+    start_year : int
+        First year to download
+    end_year : int
+        Last year to download
+    output_dir : str
+        Directory to save files
     """
-    df = pd.read_csv(filename)
-    df['datetime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'].astype(str).str.zfill(4), 
-                                  format='%Y-%m-%d %H%M')
-    df['year'] = df['datetime'].dt.year
-    df['month'] = df['datetime'].dt.month
-    return df
+    # Create output directory if it doesn't exist
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    base_url = "https://downloads.psl.noaa.gov/Datasets/noaa.oisst.v2.highres"
+    
+    for year in range(start_year, end_year + 1):
+        filename = f"sst.day.mean.{year}.nc"
+        url = f"{base_url}/{filename}"
+        output_path = os.path.join(output_dir, filename)
+        
+        # Skip if file already exists
+        if os.path.exists(output_path):
+            print(f"{filename} already exists, skipping...")
+            continue
+        
+        print(f"Downloading {filename}...")
+        
+        # Stream the download with progress bar
+        response = requests.get(url, stream=True)
+        total_size = int(response.headers.get('content-length', 0))
+        
+        if response.status_code == 200:
+            with open(output_path, 'wb') as f, tqdm(
+                desc=filename,
+                total=total_size,
+                unit='iB',
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as pbar:
+                for data in response.iter_content(chunk_size=1024):
+                    size = f.write(data)
+                    pbar.update(size)
+            print(f"Successfully downloaded {filename}")
+        else:
+            print(f"Failed to download {filename}")
 
-def generate_sst_data(start_year, end_year):
+def download_oni_data(output_dir='climate_data'):
     """
-    Generate realistic SST data based on Gulf of Mexico climatology
+    Download Oceanic Niño Index (El Niño/La Niña) data
+    Source: NOAA Climate Prediction Center
     """
-    print("Generating climatological SST data...")
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
     
-    # Define grid
-    lats = np.arange(15, 35, 0.5)
-    lons = np.arange(-100, -80, 0.5)
-    years = range(start_year, end_year + 1)
-    months = range(1, 13)
+    url = "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
+    output_path = os.path.join(output_dir, 'oni_data.txt')
     
-    # Gulf of Mexico climatological parameters
-    base_temps = {
-        # Monthly climatological means for Gulf of Mexico
-        1: 23.5,  # January
-        2: 23.0,  # February
-        3: 23.8,  # March
-        4: 25.2,  # April
-        5: 26.8,  # May
-        6: 28.4,  # June
-        7: 29.2,  # July
-        8: 29.6,  # August
-        9: 29.2,  # September
-        10: 27.8, # October
-        11: 25.9, # November
-        12: 24.3  # December
-    }
+    print("Downloading ONI data...")
+    response = requests.get(url)
     
-    sst_data = []
-    
-    for year in years:
-        for month in months:
-            base_temp = base_temps[month]
-            
-            for lat in lats:
-                for lon in lons:
-                    # Temperature variations
-                    lat_effect = -0.15 * abs(lat - 25)  # Temperature decreases with latitude
-                    lon_effect = -0.05 * abs(lon + 90)  # Slight east-west gradient
-                    
-                    # Add interannual variability
-                    year_effect = np.random.normal(0, 0.3)
-                    
-                    # Calculate final SST
-                    sst = base_temp + lat_effect + lon_effect + year_effect
-                    
-                    sst_data.append({
-                        'year': year,
-                        'month': month,
-                        'lat': lat,
-                        'lon': lon,
-                        'sst': sst
-                    })
-    
-    df = pd.DataFrame(sst_data)
-    print(f"Generated {len(df)} SST records")
-    return df
-
-def calculate_environmental_indices(sst_df):
-    """
-    Calculate environmental indices from SST data
-    """
-    print("Calculating environmental indices...")
-    
-    # Calculate spatial means for each month
-    monthly_means = sst_df.groupby(['year', 'month']).agg({
-        'sst': ['mean', 'std', 'min', 'max']
-    }).reset_index()
-    
-    # Flatten multi-level columns
-    monthly_means.columns = ['year', 'month', 'sst_mean', 'sst_std', 'sst_min', 'sst_max']
-    
-    # Calculate 3-month running mean (proxy for seasonal patterns)
-    monthly_means['sst_3month_mean'] = monthly_means['sst_mean'].rolling(window=3, center=True).mean()
-    
-    # Calculate annual cycle and anomalies (proxy for interannual variability)
-    monthly_means['annual_cycle'] = monthly_means.groupby('month')['sst_mean'].transform('mean')
-    monthly_means['sst_anomaly'] = monthly_means['sst_mean'] - monthly_means['annual_cycle']
-    
-    return monthly_means
-
-def analyze_hurricane_sst_relationships(combined_data):
-    """
-    Analyze relationships between SST and hurricane characteristics
-    """
-    # Monthly statistics
-    monthly_stats = combined_data.groupby('month').agg({
-        'Wind': ['count', 'mean', 'max'],
-        'sst_mean': 'mean',
-        'sst_anomaly': 'mean'
-    }).round(2)
-    
-    # Correlation analysis
-    correlations = combined_data[[
-        'Wind', 'Pressure', 'sst_mean', 'sst_3month_mean', 'sst_anomaly'
-    ]].corr()
-    
-    # Intensity categories analysis
-    intensity_by_sst = combined_data.groupby(
-        pd.qcut(combined_data['sst_mean'], q=4)
-    ).agg({
-        'Wind': ['count', 'mean', 'max']
-    }).round(2)
-    
-    return monthly_stats, correlations, intensity_by_sst
-
-def main():
-    try:
-        # Load hurricane data
-        print("Loading HURDAT data...")
-        hurdat_df = load_hurdat_data('filtered_hurricane_data.csv')
-        
-        # Get date range
-        start_year = hurdat_df['year'].min()
-        end_year = hurdat_df['year'].max()
-        print(f"Processing data from {start_year} to {end_year}")
-        
-        # Generate SST data
-        sst_data = generate_sst_data(start_year, end_year)
-        
-        # Calculate environmental indices
-        env_indices = calculate_environmental_indices(sst_data)
-        
-        # Combine datasets
-        print("Combining datasets...")
-        combined_data = pd.merge(
-            hurdat_df,
-            env_indices,
-            on=['year', 'month'],
-            how='left'
-        )
-        
-        # Analyze relationships
-        print("\nAnalyzing relationships...")
-        monthly_stats, correlations, intensity_by_sst = analyze_hurricane_sst_relationships(combined_data)
-        
-        # Print results
-        print("\nCorrelations with Hurricane Intensity:")
-        print(correlations['Wind'].round(3))
-        
-        print("\nMonthly Statistics:")
-        print(monthly_stats)
-        
-        print("\nHurricane Intensity by SST Quartile:")
-        print(intensity_by_sst)
-        
-        # Save results
-        print("\nSaving results...")
-        combined_data.to_csv('hurricane_environmental_data.csv', index=False)
-        
-        return combined_data
-        
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
-        return None
-
-if __name__ == "__main__":
-    combined_data = main()
-    if combined_data is not None:
-        print("\nSuccess! Analysis complete.")
-        print(f"\nProcessed {len(combined_data)} records")
-        print("\nEnvironmental variables included:", 
-              [col for col in combined_data.columns if 'sst' in col])
-        
-        # Print some validation statistics
-        print("\nSST Statistics:")
-        print(combined_data[['sst_mean', 'sst_anomaly']].describe().round(2))
+    if response.status_code == 200:
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
+        print("Successfully downloaded ONI data")
     else:
-        print("\nFailed to complete analysis. Please check the error messages above.")
+        print("Failed to download ONI data")
+
+def download_amo_data(output_dir='climate_data'):
+    """
+    Download Atlantic Multidecadal Oscillation (AMO) data
+    Source: NOAA ESRL
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    url = "https://psl.noaa.gov/data/correlation/amon.us.data"
+    output_path = os.path.join(output_dir, 'amo_data.txt')
+    
+    print("Downloading AMO data...")
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
+        print("Successfully downloaded AMO data")
+    else:
+        print("Failed to download AMO data")
+
+def download_wind_shear_data(start_year, end_year, output_dir='climate_data'):
+    """
+    Download vertical wind shear data from NCEP/NCAR Reanalysis
+    Source: NOAA PSL
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    base_url = "https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis/pressure"
+    variables = ['uwnd', 'vwnd']  # u and v wind components
+    
+    for year in range(start_year, end_year + 1):
+        for var in variables:
+            filename = f"{var}.{year}.nc"
+            url = f"{base_url}/{filename}"
+            output_path = os.path.join(output_dir, filename)
+            
+            if os.path.exists(output_path):
+                print(f"{filename} already exists, skipping...")
+                continue
+            
+            print(f"Downloading {filename}...")
+            response = requests.get(url, stream=True)
+            total_size = int(response.headers.get('content-length', 0))
+            
+            if response.status_code == 200:
+                with open(output_path, 'wb') as f, tqdm(
+                    desc=filename,
+                    total=total_size,
+                    unit='iB',
+                    unit_scale=True,
+                    unit_divisor=1024,
+                ) as pbar:
+                    for data in response.iter_content(chunk_size=1024):
+                        size = f.write(data)
+                        pbar.update(size)
+                print(f"Successfully downloaded {filename}")
+            else:
+                print(f"Failed to download {filename}")
+
+def download_relative_humidity_data(start_year, end_year, output_dir='climate_data'):
+    """
+    Download relative humidity data from NCEP/NCAR Reanalysis
+    Source: NOAA PSL
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    base_url = "https://downloads.psl.noaa.gov/Datasets/ncep.reanalysis/pressure"
+    
+    for year in range(start_year, end_year + 1):
+        filename = f"rhum.{year}.nc"
+        url = f"{base_url}/{filename}"
+        output_path = os.path.join(output_dir, filename)
+        
+        if os.path.exists(output_path):
+            print(f"{filename} already exists, skipping...")
+            continue
+        
+        print(f"Downloading {filename}...")
+        response = requests.get(url, stream=True)
+        total_size = int(response.headers.get('content-length', 0))
+        
+        if response.status_code == 200:
+            with open(output_path, 'wb') as f, tqdm(
+                desc=filename,
+                total=total_size,
+                unit='iB',
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as pbar:
+                for data in response.iter_content(chunk_size=1024):
+                    size = f.write(data)
+                    pbar.update(size)
+            print(f"Successfully downloaded {filename}")
+        else:
+            print(f"Failed to download {filename}")
+
+def download_all_climate_data(start_year, end_year):
+    """
+    Download all climate data
+    """
+    # Create main output directory
+    base_dir = 'hurricane_climate_data'
+    Path(base_dir).mkdir(parents=True, exist_ok=True)
+    
+    # Download each dataset
+    print("\nDownloading SST data...")
+    download_sst_data(start_year, end_year, os.path.join(base_dir, 'sst'))
+    
+    print("\nDownloading ONI data...")
+    download_oni_data(os.path.join(base_dir, 'oni'))
+    
+    print("\nDownloading AMO data...")
+    download_amo_data(os.path.join(base_dir, 'amo'))
+    
+    print("\nDownloading wind shear data...")
+    download_wind_shear_data(start_year, end_year, os.path.join(base_dir, 'wind'))
+    
+    print("\nDownloading relative humidity data...")
+    download_relative_humidity_data(start_year, end_year, os.path.join(base_dir, 'humidity'))
+    
+    print("\nAll downloads complete!")
+
+# Example usage:
+if __name__ == "__main__":
+    # Download all climate data for start_year to end_year
+    download_all_climate_data(1999, 2000)
