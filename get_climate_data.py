@@ -2,7 +2,6 @@ import requests
 from pathlib import Path
 from tqdm import tqdm
 import os
-import pandas as pd
 
 def download_sst_data(start_year, end_year, output_dir='climate_data'):
     """
