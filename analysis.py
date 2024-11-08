@@ -114,7 +114,7 @@ def main():
     
     # Download climate data if needed
     print("Checking and downloading climate data...")
-    download_all_climate_data(1999, 2023)
+    download_all_climate_data(1999, 2000)
     
     # Load cities
     print("Loading city data...")
@@ -125,11 +125,11 @@ def main():
     analyzer = HurricaneRiskAnalyzer()
     
     # Analyze current hurricane season
-    current_year = datetime.now().year
+    current_year = 1999
     print(f"Analyzing {current_year} hurricane season...")
     
     # Load climate data for analysis year
-    analyzer.load_climate_data(current_year)
+    analyzer.load_hurricane_data(current_year)
     
     # Analyze entire season
     season_results = analyze_hurricane_season(analyzer, cities, current_year)
