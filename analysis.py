@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 import matplotlib.pyplot as plt
 from get_climate_data import download_all_climate_data
-from hurricane_analyzer import HurricaneRiskAnalyzer, generate_risk_report
+from hurricane_analyzer import HurricaneRiskAnalyzer, format_risk_report
 
 def load_cities():
     """
@@ -135,7 +135,7 @@ def main():
     season_results = analyze_hurricane_season(analyzer, cities, current_year)
     
     # Generate and save report
-    report = generate_risk_report(season_results)
+    report = format_risk_report(season_results)
     report_path = output_dir / 'hurricane_risk_report.txt'
     with open(report_path, 'w') as f:
         f.write(report)
