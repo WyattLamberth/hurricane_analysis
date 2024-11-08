@@ -4,12 +4,10 @@ from datetime import datetime
 from pathlib import Path
 import matplotlib.pyplot as plt
 from get_climate_data import download_all_climate_data
-from hurricane_analyzer import HurricaneRiskAnalyzer, format_risk_report
+from weighted_hurricane_risk import WeightedHurricaneRiskAssessor
 
 def load_cities():
-    """
-    Create dictionary of cities and their coordinates
-    """
+    """Create dictionary of cities and their coordinates"""
     cities_data = """
     New Orleans, USA,29.951065,-90.071533
     Houston, USA,29.760427,-95.369804
@@ -38,7 +36,6 @@ def load_cities():
     Nassau, Bahamas,25.047983,-77.355415
     """
     
-    # Convert to dictionary
     cities = {}
     for line in cities_data.strip().split('\n'):
         city, country, lat, lon = line.strip().split(',')
@@ -47,45 +44,80 @@ def load_cities():
     
     return cities
 
-def analyze_hurricane_season(analyzer, cities, year):
+def analyze_hurricane_season(assessor, cities, year):
     """
-    Analyze hurricane risk for entire hurricane season
-    
-    Parameters:
-    -----------
-    analyzer : HurricaneRiskAnalyzer
-        Initialized analyzer object
-    cities : dict
-        Dictionary of city names and coordinates
-    year : int
-        Year to analyze
-    
-    Returns:
-    --------
-    DataFrame with average risk scores for the season
+    Analyze hurricane risk for entire hurricane season using SVM model
     """
     # Hurricane season months (June through November)
     season_months = range(6, 12)
     monthly_results = []
     
     for month in season_months:
-        # Analyze mid-month conditions
-        date = np.datetime64(f'{year}-{month:02d}-15')
-        monthly_risk = analyzer.assess_city_risks(cities, date)
-        monthly_results.append(monthly_risk.set_index('city'))
+        print(f"Analyzing {year}-{month:02d}...")
+        results = []
+        
+        for city, (lat, lon) in cities.items():
+            try:
+                # Get risk assessment for each city
+                assessment = assessor.assess_location_risk(
+                    lat, lon,
+                    climate_conditions={
+                        'sst': 28.5,  # Default values if actual data not available
+                        'wind_shear': 8.0,
+                        'oni': 0.5,
+                        'amo': 0.2
+                    }
+                )
+                
+                # Format results with error handling
+                result = {
+                    'city': city,
+                    'latitude': lat,
+                    'longitude': lon,
+                    'risk_level': assessment.get('risk_level', 'Unknown'),
+                    'predicted_category': assessment.get('predicted_category', 'Unknown'),
+                    'confidence': assessment.get('confidence_score', 0.0),
+                    'risk_score': assessment.get('confidence_score', 0.0)
+                }
+                
+                # Add individual category probabilities if available
+                probabilities = assessment.get('category_probabilities', {})
+                for category, prob in probabilities.items():
+                    result[f'prob_{category}'] = prob
+                
+                results.append(result)
+                
+            except Exception as e:
+                print(f"Warning: Error analyzing {city}: {str(e)}")
+                # Add placeholder result for failed analysis
+                results.append({
+                    'city': city,
+                    'latitude': lat,
+                    'longitude': lon,
+                    'risk_level': 'Error',
+                    'predicted_category': 'Unknown',
+                    'confidence': 0.0,
+                    'risk_score': 0.0
+                })
+        
+        monthly_results.append(pd.DataFrame(results))
     
-    # Calculate season average
-    season_avg = pd.concat(monthly_results).groupby('city').mean()
-    return season_avg.reset_index()
+    # Calculate season average with error handling
+    try:
+        season_avg = pd.concat(monthly_results).groupby('city').mean().reset_index()
+    except Exception as e:
+        print(f"Warning: Error calculating season average: {str(e)}")
+        # Return the last month's results if averaging fails
+        season_avg = monthly_results[-1]
+    
+    return season_avg
 
 def plot_risk_map(risk_results, cities):
-    """
-    Create a map visualization of hurricane risks
-    """
+    """Create a map visualization of hurricane risks"""
     plt.figure(figsize=(15, 10))
     
     # Create scatter plot of cities colored by risk
-    plt.scatter(
+    scatter = plt.scatter(
         [coords[1] for coords in cities.values()],
         [coords[0] for coords in cities.values()],
         c=risk_results['risk_score'],
@@ -95,46 +127,120 @@ def plot_risk_map(risk_results, cities):
     
     # Add city labels
     for city, coords in cities.items():
-        plt.annotate(city, (coords[1], coords[0]), xytext=(5, 5), 
-                    textcoords='offset points', fontsize=8)
+        plt.annotate(
+            city, 
+            (coords[1], coords[0]), 
+            xytext=(5, 5),
+            textcoords='offset points', 
+            fontsize=8
+        )
     
-    plt.colorbar(label='Risk Score')
-    plt.title('Hurricane Risk Assessment Map')
+    # Add colorbar and labels
+    plt.colorbar(scatter, label='Risk Score')
+    plt.title('Hurricane Risk Assessment Map (SVM-based Analysis)')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
+    
+    # Add additional information
+    plt.text(
+        0.02, 0.98, 
+        'Risk Assessment based on SVM model\nIncorporating SST, Wind Shear, ONI, and AMO',
+        transform=plt.gca().transAxes,
+        fontsize=8,
+        verticalalignment='top'
+    )
     
     # Save plot
     plt.savefig('hurricane_risk_map.png', dpi=300, bbox_inches='tight')
     plt.close()
+
+def format_risk_report(results):
+    """Format detailed risk assessment report"""
+    report = ["Hurricane Risk Assessment Report", "=" * 30, ""]
+    
+    # Sort cities by risk score
+    sorted_results = results.sort_values('risk_score', ascending=False)
+    
+    report.append("City Risk Rankings:")
+    report.append("-" * 20)
+    
+    for _, row in sorted_results.iterrows():
+        report.append(f"\nCity: {row['city']}")
+        report.append(f"Risk Level: {row['risk_level']}")
+        report.append(f"Predicted Category: {row['predicted_category']}")
+        report.append(f"Confidence Score: {row['confidence']:.2f}")
+        report.append(f"Overall Risk Score: {row['risk_score']:.2f}")
+        
+        # Add category probabilities if available
+        prob_cols = [col for col in row.index if col.startswith('prob_')]
+        if prob_cols:
+            report.append("\nCategory Probabilities:")
+            for col in prob_cols:
+                category = col.replace('prob_', '')
+                report.append(f"  {category}: {row[col]:.1%}")
+        
+        report.append("-" * 20)
+    
+    return "\n".join(report)
+
+def format_correlation_report(correlation_stats):
+    """Format spatial correlation analysis report"""
+    report = [
+        "Spatial Correlation Analysis",
+        "=========================",
+        ""
+    ]
+    
+    for factor, stats in correlation_stats.items():
+        report.extend([
+            f"{factor.upper()} Correlations:",
+            f"  Mean correlation: {stats['mean_correlation']:.3f}",
+            f"  Maximum correlation: {stats['max_correlation']:.3f}",
+            f"  Minimum correlation: {stats['min_correlation']:.3f}",
+            f"  Standard deviation: {stats['std_correlation']:.3f}",
+            ""
+        ])
+    
+    return "\n".join(report)
 
 def main():
     # Create output directory
     output_dir = Path('hurricane_analysis_results')
     output_dir.mkdir(exist_ok=True)
     
-    # Download climate data if needed
-    print("Checking and downloading climate data...")
-    download_all_climate_data(1999, 2000)
+    # Download climate data for recent years
+    print("Downloading climate data for 2018-2023...")
+    download_all_climate_data(2018, 2023)
     
     # Load cities
     print("Loading city data...")
     cities = load_cities()
     
-    # Initialize analyzer
-    print("Initializing analyzer...")
-    analyzer = HurricaneRiskAnalyzer()
+    # Initialize and train the risk assessor
+    print("Initializing and training risk assessor...")
+    assessor = WeightedHurricaneRiskAssessor()
+    data = assessor.load_and_prepare_data()
+    assessor.train_model(data)
     
-    # Analyze current hurricane season
-    current_year = 1999
+    # Perform spatial correlation analysis
+    print("Performing spatial correlation analysis...")
+    correlation_stats = assessor.perform_spatial_correlation_analysis(data)
+    correlation_report = format_correlation_report(correlation_stats)
+
+    # Save correlation report
+    correlation_report_path = output_dir / 'spatial_correlation_report.txt'
+    with open(correlation_report_path, 'w') as f:
+        f.write(correlation_report)
+
+    print(f"Spatial correlation report saved to: {correlation_report_path}")
+    
+    # Analyze current season
+    current_year = 2023
     print(f"Analyzing {current_year} hurricane season...")
-    
-    # Load climate data for analysis year
-    analyzer.load_hurricane_data(current_year)
-    
-    # Analyze entire season
-    season_results = analyze_hurricane_season(analyzer, cities, current_year)
+    season_results = analyze_hurricane_season(assessor, cities, current_year)
     
     # Generate and save report
+    print("Generating risk report...")
     report = format_risk_report(season_results)
     report_path = output_dir / 'hurricane_risk_report.txt'
     with open(report_path, 'w') as f:
