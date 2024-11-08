@@ -1,0 +1,26 @@
+Spatial Correlation Analysis
+=========================
+
+SST Correlations:
+  Mean correlation: 0.000
+  Maximum correlation: 0.000
+  Minimum correlation: 0.000
+  Standard deviation: 0.000
+
+WIND_SHEAR Correlations:
+  Mean correlation: 0.000
+  Maximum correlation: 0.000
+  Minimum correlation: 0.000
+  Standard deviation: 0.000
+
+ONI Correlations:
+  Mean correlation: -0.015
+  Maximum correlation: 0.339
+  Minimum correlation: -0.951
+  Standard deviation: 0.173
+
+AMO Correlations:
+  Mean correlation: 0.000
+  Maximum correlation: 0.000
+  Minimum correlation: 0.000
+  Standard deviation: 0.000
