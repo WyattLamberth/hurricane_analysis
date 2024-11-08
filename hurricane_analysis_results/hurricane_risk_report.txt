@@ -1,380 +1,555 @@
-Hurricane Risk Assessment Report
-==============================
+Hurricane Risk Assessment Report (SVM & KDE Combined)
+==================================================
 
 City Risk Rankings:
---------------------
-
-City: Mobile (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.64
-Overall Risk Score: 0.64
-
-Category Probabilities:
-  Cat1: 4.9%
-  Cat2: 4.9%
-  Cat3: 2.9%
-  Cat4-5: 2.3%
-  TD: 64.4%
-  TS: 20.5%
---------------------
+------------------------------
 
 City: Ciudad del Carmen (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.56
-Overall Risk Score: 0.56
+Combined Risk Score: 0.80
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.60
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.0%
-  Cat2: 5.9%
-  Cat3: 3.5%
-  Cat4-5: 2.8%
-  TD: 56.3%
-  TS: 25.5%
---------------------
+  Cat3: SVM: 3.4%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 23.5%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 59.6%, KDE: 31.7%
+  Cat2: SVM: 4.8%, KDE: 4.3%
+  Cat1: SVM: 6.0%, KDE: 11.1%
+------------------------------
 
 City: Progreso (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.56
-Overall Risk Score: 0.56
+Combined Risk Score: 0.80
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.59
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.0%
-  Cat2: 5.9%
-  Cat3: 3.5%
-  Cat4-5: 2.8%
-  TD: 56.1%
-  TS: 25.7%
---------------------
+  Cat3: SVM: 3.4%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 23.6%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 59.4%, KDE: 31.7%
+  Cat2: SVM: 4.8%, KDE: 4.3%
+  Cat1: SVM: 6.0%, KDE: 11.1%
+------------------------------
 
 City: Mérida (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.56
-Overall Risk Score: 0.56
+Combined Risk Score: 0.80
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.59
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.0%
-  Cat2: 5.9%
-  Cat3: 3.5%
-  Cat4-5: 2.8%
-  TD: 56.1%
-  TS: 25.7%
---------------------
+  Cat3: SVM: 3.4%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 23.6%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 59.4%, KDE: 31.7%
+  Cat2: SVM: 4.8%, KDE: 4.3%
+  Cat1: SVM: 6.0%, KDE: 11.1%
+------------------------------
 
 City: Campeche (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.56
-Overall Risk Score: 0.56
+Combined Risk Score: 0.80
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.59
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.0%
-  Cat2: 5.9%
-  Cat3: 3.5%
-  Cat4-5: 2.8%
-  TD: 56.1%
-  TS: 25.6%
---------------------
+  Cat3: SVM: 3.4%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 23.6%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 59.4%, KDE: 31.7%
+  Cat2: SVM: 4.8%, KDE: 4.3%
+  Cat1: SVM: 6.0%, KDE: 11.1%
+------------------------------
 
 City: Coatzacoalcos (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.56
-Overall Risk Score: 0.56
+Combined Risk Score: 0.80
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.59
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.0%
-  Cat2: 6.0%
-  Cat3: 3.5%
-  Cat4-5: 2.8%
-  TD: 56.0%
-  TS: 25.7%
---------------------
+  Cat3: SVM: 3.4%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 23.6%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 59.2%, KDE: 31.7%
+  Cat2: SVM: 4.8%, KDE: 4.3%
+  Cat1: SVM: 6.1%, KDE: 11.1%
+------------------------------
 
 City: Veracruz (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.56
-Overall Risk Score: 0.56
+Combined Risk Score: 0.80
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.59
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.0%
-  Cat2: 6.0%
-  Cat3: 3.6%
-  Cat4-5: 2.8%
-  TD: 55.7%
-  TS: 25.8%
---------------------
+  Cat3: SVM: 3.4%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 23.8%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 59.0%, KDE: 31.7%
+  Cat2: SVM: 4.9%, KDE: 4.3%
+  Cat1: SVM: 6.1%, KDE: 11.1%
+------------------------------
 
 City: Tuxpan (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.55
-Overall Risk Score: 0.55
+Combined Risk Score: 0.79
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.59
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.1%
-  Cat2: 6.0%
-  Cat3: 3.6%
-  Cat4-5: 2.9%
-  TD: 55.5%
-  TS: 26.0%
---------------------
+  Cat3: SVM: 3.4%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 24.0%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 58.7%, KDE: 31.7%
+  Cat2: SVM: 4.9%, KDE: 4.3%
+  Cat1: SVM: 6.1%, KDE: 11.1%
+------------------------------
 
 City: Tampico (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.55
-Overall Risk Score: 0.55
+Combined Risk Score: 0.79
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.59
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.1%
-  Cat2: 6.0%
-  Cat3: 3.6%
-  Cat4-5: 2.9%
-  TD: 55.3%
-  TS: 26.1%
---------------------
+  Cat3: SVM: 3.5%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 24.1%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 58.6%, KDE: 31.7%
+  Cat2: SVM: 4.9%, KDE: 4.3%
+  Cat1: SVM: 6.1%, KDE: 11.1%
+------------------------------
 
 City: Belize City (Belize)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.55
-Overall Risk Score: 0.55
+Combined Risk Score: 0.79
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.58
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.1%
-  Cat2: 6.1%
-  Cat3: 3.6%
-  Cat4-5: 2.9%
-  TD: 55.1%
-  TS: 26.2%
---------------------
+  Cat3: SVM: 3.5%, KDE: 6.1%
+  Cat4-5: SVM: 2.8%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 24.2%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 58.3%, KDE: 31.7%
+  Cat2: SVM: 4.9%, KDE: 4.3%
+  Cat1: SVM: 6.2%, KDE: 11.1%
+------------------------------
 
 City: Cancún (Mexico)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.52
-Overall Risk Score: 0.52
+Combined Risk Score: 0.78
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.55
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.4%
-  Cat2: 6.3%
-  Cat3: 3.7%
-  Cat4-5: 3.0%
-  TD: 52.4%
-  TS: 28.2%
---------------------
-
-City: George Town (Cayman Islands)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.50
-Overall Risk Score: 0.50
-
-Category Probabilities:
-  Cat1: 6.7%
-  Cat2: 6.6%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 50.3%
-  TS: 29.3%
---------------------
+  Cat3: SVM: 3.6%, KDE: 6.1%
+  Cat4-5: SVM: 3.0%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 26.2%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 55.5%, KDE: 31.7%
+  Cat2: SVM: 5.2%, KDE: 4.3%
+  Cat1: SVM: 6.5%, KDE: 11.1%
+------------------------------
 
 City: Havana (Cuba)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.50
-Overall Risk Score: 0.50
+Combined Risk Score: 0.77
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.53
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.7%
-  Cat2: 6.6%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 50.3%
-  TS: 29.5%
---------------------
+  Cat3: SVM: 3.8%, KDE: 6.1%
+  Cat4-5: SVM: 3.1%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 27.6%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 53.2%, KDE: 31.7%
+  Cat2: SVM: 5.4%, KDE: 4.3%
+  Cat1: SVM: 6.8%, KDE: 11.1%
+------------------------------
 
 City: Varadero (Cuba)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.50
-Overall Risk Score: 0.50
+Combined Risk Score: 0.76
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.53
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.7%
-  Cat2: 6.6%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 49.8%
-  TS: 29.8%
---------------------
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.1%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 27.9%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 52.7%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 6.9%, KDE: 11.1%
+------------------------------
 
 City: Cienfuegos (Cuba)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.50
-Overall Risk Score: 0.50
+Combined Risk Score: 0.76
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.53
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.8%
-  Cat2: 6.7%
-  Cat3: 4.0%
-  Cat4-5: 3.2%
-  TD: 49.6%
-  TS: 29.8%
---------------------
-
-City: Nassau (Bahamas)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.49
-Overall Risk Score: 0.49
-
-Category Probabilities:
-  Cat1: 6.8%
-  Cat2: 6.7%
-  Cat3: 4.0%
-  Cat4-5: 3.2%
-  TD: 49.4%
-  TS: 29.8%
---------------------
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.2%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 27.9%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 52.6%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 7.0%, KDE: 11.1%
+------------------------------
 
 City: Houston (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.49
-Overall Risk Score: 0.49
+Combined Risk Score: 0.76
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.51
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.7%
-  Cat2: 6.5%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 48.7%
-  TS: 31.1%
---------------------
+  Cat3: SVM: 3.8%, KDE: 6.1%
+  Cat4-5: SVM: 3.1%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 29.2%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 51.5%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 6.9%, KDE: 11.1%
+------------------------------
 
 City: Galveston (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.49
-Overall Risk Score: 0.49
+Combined Risk Score: 0.76
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.51
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.7%
-  Cat2: 6.6%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 48.5%
-  TS: 31.2%
---------------------
-
-City: Corpus Christi (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.48
-Overall Risk Score: 0.48
-
-Category Probabilities:
-  Cat1: 6.8%
-  Cat2: 6.6%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 48.4%
-  TS: 31.1%
---------------------
+  Cat3: SVM: 3.8%, KDE: 6.1%
+  Cat4-5: SVM: 3.1%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 29.3%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 51.3%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 6.9%, KDE: 11.1%
+------------------------------
 
 City: New Orleans (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.48
-Overall Risk Score: 0.48
+Combined Risk Score: 0.75
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.51
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.8%
-  Cat2: 6.6%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 48.0%
-  TS: 31.6%
---------------------
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.1%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 29.8%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 50.7%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 7.0%, KDE: 11.1%
+------------------------------
 
 City: Biloxi (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.48
-Overall Risk Score: 0.48
+Combined Risk Score: 0.75
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.51
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.8%
-  Cat2: 6.6%
-  Cat3: 3.9%
-  Cat4-5: 3.1%
-  TD: 47.9%
-  TS: 31.7%
---------------------
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.1%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 29.8%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 50.6%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 7.0%, KDE: 11.1%
+------------------------------
 
 City: Pensacola (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.48
-Overall Risk Score: 0.48
+Combined Risk Score: 0.75
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.50
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 6.8%
-  Cat2: 6.6%
-  Cat3: 4.0%
-  Cat4-5: 3.1%
-  TD: 47.6%
-  TS: 31.8%
---------------------
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.2%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 30.0%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 50.3%, KDE: 31.7%
+  Cat2: SVM: 5.6%, KDE: 4.3%
+  Cat1: SVM: 7.1%, KDE: 11.1%
+------------------------------
 
 City: Key West (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.47
-Overall Risk Score: 0.47
+Combined Risk Score: 0.75
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.50
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 7.0%
-  Cat2: 6.9%
-  Cat3: 4.1%
-  Cat4-5: 3.2%
-  TD: 47.2%
-  TS: 31.6%
---------------------
+  Cat3: SVM: 4.0%, KDE: 6.1%
+  Cat4-5: SVM: 3.3%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 29.7%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 50.0%, KDE: 31.7%
+  Cat2: SVM: 5.7%, KDE: 4.3%
+  Cat1: SVM: 7.2%, KDE: 11.1%
+------------------------------
 
 City: Miami (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.47
-Overall Risk Score: 0.47
+Combined Risk Score: 0.75
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.50
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 1.00
 
 Category Probabilities:
-  Cat1: 7.1%
-  Cat2: 6.9%
-  Cat3: 4.1%
-  Cat4-5: 3.3%
-  TD: 46.9%
-  TS: 31.7%
---------------------
+  Cat3: SVM: 4.1%, KDE: 6.1%
+  Cat4-5: SVM: 3.3%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 29.9%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 49.7%, KDE: 31.7%
+  Cat2: SVM: 5.8%, KDE: 4.3%
+  Cat1: SVM: 7.3%, KDE: 11.1%
+------------------------------
+
+City: Corpus Christi (USA)
+Combined Risk Score: 0.72
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.51
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 0.92
+
+Category Probabilities:
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.2%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 29.2%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 51.2%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 7.0%, KDE: 11.1%
+------------------------------
+
+City: Nassau (Bahamas)
+Combined Risk Score: 0.70
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.52
+
+KDE Assessment:
+  Risk Level: Very High
+  Risk Score: 0.88
+
+Category Probabilities:
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.2%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 27.9%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 52.3%, KDE: 31.7%
+  Cat2: SVM: 5.6%, KDE: 4.3%
+  Cat1: SVM: 7.0%, KDE: 11.1%
+------------------------------
+
+City: George Town (Cayman Islands)
+Combined Risk Score: 0.66
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.53
+
+KDE Assessment:
+  Risk Level: High
+  Risk Score: 0.79
+
+Category Probabilities:
+  Cat3: SVM: 3.9%, KDE: 6.1%
+  Cat4-5: SVM: 3.1%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 27.4%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 53.2%, KDE: 31.7%
+  Cat2: SVM: 5.5%, KDE: 4.3%
+  Cat1: SVM: 6.9%, KDE: 11.1%
+------------------------------
 
 City: Tampa (USA)
-Risk Level: Unknown
-Predicted Category: TD
-Confidence Score: 0.47
-Overall Risk Score: 0.47
+Combined Risk Score: 0.64
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.50
+
+KDE Assessment:
+  Risk Level: High
+  Risk Score: 0.78
 
 Category Probabilities:
-  Cat1: 7.0%
-  Cat2: 6.8%
-  Cat3: 4.1%
-  Cat4-5: 3.2%
-  TD: 46.9%
-  TS: 32.0%
---------------------
+  Cat3: SVM: 4.0%, KDE: 6.1%
+  Cat4-5: SVM: 3.3%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 30.2%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 49.6%, KDE: 31.7%
+  Cat2: SVM: 5.7%, KDE: 4.3%
+  Cat1: SVM: 7.2%, KDE: 11.1%
+------------------------------
+
+City: Mobile (USA)
+Combined Risk Score: 0.45
+
+SVM Assessment:
+  Risk Level: Unknown
+  Confidence Score: 0.68
+
+KDE Assessment:
+  Risk Level: Low
+  Risk Score: 0.22
+
+Category Probabilities:
+  Cat3: SVM: 2.7%, KDE: 6.1%
+  Cat4-5: SVM: 2.3%, KDE: 0.0%
+  Cat5: SVM: 0.0%, KDE: 0.0%
+  TS: SVM: 18.4%, KDE: 42.5%
+  Cat4: SVM: 0.0%, KDE: 4.3%
+  TD: SVM: 67.9%, KDE: 31.7%
+  Cat2: SVM: 3.9%, KDE: 4.3%
+  Cat1: SVM: 4.9%, KDE: 11.1%
+------------------------------

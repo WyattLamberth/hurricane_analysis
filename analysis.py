@@ -5,6 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from get_climate_data import download_all_climate_data
 from weighted_hurricane_risk import WeightedHurricaneRiskAssessor
+from kde_hurricane_risk import KDEHurricaneRiskAssessor
 
 def load_cities():
     """Create dictionary of cities and their coordinates"""
@@ -112,48 +113,6 @@ def analyze_hurricane_season(assessor, cities, year):
     
     return season_avg
 
-def plot_risk_map(risk_results, cities):
-    """Create a map visualization of hurricane risks"""
-    plt.figure(figsize=(15, 10))
-    
-    # Create scatter plot of cities colored by risk
-    scatter = plt.scatter(
-        [coords[1] for coords in cities.values()],
-        [coords[0] for coords in cities.values()],
-        c=risk_results['risk_score'],
-        cmap='RdYlBu_r',
-        s=100
-    )
-    
-    # Add city labels
-    for city, coords in cities.items():
-        plt.annotate(
-            city, 
-            (coords[1], coords[0]), 
-            xytext=(5, 5),
-            textcoords='offset points', 
-            fontsize=8
-        )
-    
-    # Add colorbar and labels
-    plt.colorbar(scatter, label='Risk Score')
-    plt.title('Hurricane Risk Assessment Map (SVM-based Analysis)')
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    
-    # Add additional information
-    plt.text(
-        0.02, 0.98, 
-        'Risk Assessment based on SVM model\nIncorporating SST, Wind Shear, ONI, and AMO',
-        transform=plt.gca().transAxes,
-        fontsize=8,
-        verticalalignment='top'
-    )
-    
-    # Save plot
-    plt.savefig('hurricane_risk_map.png', dpi=300, bbox_inches='tight')
-    plt.close()
-
 def format_risk_report(results):
     """Format detailed risk assessment report"""
     report = ["Hurricane Risk Assessment Report", "=" * 30, ""]
@@ -203,6 +162,178 @@ def format_correlation_report(correlation_stats):
     
     return "\n".join(report)
 
+def analyze_hurricane_season_combined(svm_assessor, kde_assessor, cities, year):
+    """
+    Analyze hurricane risk using both SVM and KDE approaches
+    """
+    # Hurricane season months (June through November)
+    season_months = range(6, 12)
+    monthly_results = []
+    
+    for month in season_months:
+        print(f"Analyzing {year}-{month:02d}...")
+        results = []
+        
+        for city, (lat, lon) in cities.items():
+            try:
+                # Get SVM assessment
+                svm_assessment = svm_assessor.assess_location_risk(
+                    lat, lon,
+                    climate_conditions={
+                        'sst': 28.5,
+                        'wind_shear': 8.0,
+                        'oni': 0.5,
+                        'amo': 0.2
+                    }
+                )
+                
+                # Get KDE assessment
+                kde_assessment = kde_assessor.assess_risk(lat, lon, season_month=month)
+                
+                # Combine results
+                result = {
+                    'city': city,
+                    'latitude': lat,
+                    'longitude': lon,
+                    'svm_risk_level': svm_assessment.get('risk_level', 'Unknown'),
+                    'kde_risk_level': kde_assessment['risk_level'],
+                    'svm_confidence': svm_assessment.get('confidence_score', 0.0),
+                    'kde_risk_score': kde_assessment['overall_risk_score'],
+                    'combined_risk_score': (
+                        0.5 * svm_assessment.get('confidence_score', 0.0) +
+                        0.5 * kde_assessment['overall_risk_score']
+                    )
+                }
+                
+                # Add individual category probabilities from both models
+                svm_probs = svm_assessment.get('category_probabilities', {})
+                kde_probs = kde_assessment['category_probabilities']
+                
+                for category in set(list(svm_probs.keys()) + list(kde_probs.keys())):
+                    result[f'svm_prob_{category}'] = svm_probs.get(category, 0.0)
+                    result[f'kde_prob_{category}'] = kde_probs.get(category, 0.0)
+                
+                results.append(result)
+                
+            except Exception as e:
+                print(f"Warning: Error analyzing {city}: {str(e)}")
+                results.append({
+                    'city': city,
+                    'latitude': lat,
+                    'longitude': lon,
+                    'svm_risk_level': 'Error',
+                    'kde_risk_level': 'Error',
+                    'svm_confidence': 0.0,
+                    'kde_risk_score': 0.0,
+                    'combined_risk_score': 0.0
+                })
+        
+        monthly_results.append(pd.DataFrame(results))
+    
+    # Calculate season average
+    try:
+        season_avg = pd.concat(monthly_results).groupby('city').mean().reset_index()
+    except Exception as e:
+        print(f"Warning: Error calculating season average: {str(e)}")
+        season_avg = monthly_results[-1]
+    
+    return season_avg
+
+def plot_combined_risk_map(risk_results, cities):
+    """Create a map visualization showing both SVM and KDE risks"""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
+    
+    # Plot SVM risk
+    scatter1 = ax1.scatter(
+        [coords[1] for coords in cities.values()],
+        [coords[0] for coords in cities.values()],
+        c=risk_results['svm_confidence'],
+        cmap='RdYlBu_r',
+        s=100
+    )
+    ax1.set_title('SVM-based Risk Assessment')
+    plt.colorbar(scatter1, ax=ax1, label='Risk Score (SVM)')
+    
+    # Plot KDE risk
+    scatter2 = ax2.scatter(
+        [coords[1] for coords in cities.values()],
+        [coords[0] for coords in cities.values()],
+        c=risk_results['kde_risk_score'],
+        cmap='RdYlBu_r',
+        s=100
+    )
+    ax2.set_title('KDE-based Risk Assessment')
+    plt.colorbar(scatter2, ax=ax2, label='Risk Score (KDE)')
+    
+    # Add city labels to both plots
+    for city, coords in cities.items():
+        ax1.annotate(
+            city, 
+            (coords[1], coords[0]), 
+            xytext=(5, 5),
+            textcoords='offset points', 
+            fontsize=8
+        )
+        ax2.annotate(
+            city, 
+            (coords[1], coords[0]), 
+            xytext=(5, 5),
+            textcoords='offset points', 
+            fontsize=8
+        )
+    
+    # Set labels
+    for ax in (ax1, ax2):
+        ax.set_xlabel('Longitude')
+        ax.set_ylabel('Latitude')
+    
+    plt.suptitle('Hurricane Risk Assessment Comparison')
+    plt.tight_layout()
+    
+    # Save plot
+    plt.savefig('hurricane_risk_comparison_map.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+def format_combined_risk_report(results):
+    """Format detailed risk assessment report including both methods"""
+    report = ["Hurricane Risk Assessment Report (SVM & KDE Combined)", "=" * 50, ""]
+    
+    # Sort cities by combined risk score
+    sorted_results = results.sort_values('combined_risk_score', ascending=False)
+    
+    report.append("City Risk Rankings:")
+    report.append("-" * 30)
+    
+    for _, row in sorted_results.iterrows():
+        report.extend([
+            f"\nCity: {row['city']}",
+            f"Combined Risk Score: {row['combined_risk_score']:.2f}",
+            "\nSVM Assessment:",
+            f"  Risk Level: {row['svm_risk_level']}",
+            f"  Confidence Score: {row['svm_confidence']:.2f}",
+            "\nKDE Assessment:",
+            f"  Risk Level: {row['kde_risk_level']}",
+            f"  Risk Score: {row['kde_risk_score']:.2f}",
+            "\nCategory Probabilities:"
+        ])
+        
+        # Add category probabilities from both models
+        svm_probs = {col.replace('svm_prob_', ''): row[col] 
+                    for col in row.index if col.startswith('svm_prob_')}
+        kde_probs = {col.replace('kde_prob_', ''): row[col] 
+                    for col in row.index if col.startswith('kde_prob_')}
+        
+        for category in set(list(svm_probs.keys()) + list(kde_probs.keys())):
+            report.append(
+                f"  {category}:"
+                f" SVM: {svm_probs.get(category, 0):.1%},"
+                f" KDE: {kde_probs.get(category, 0):.1%}"
+            )
+        
+        report.append("-" * 30)
+    
+    return "\n".join(report)
+
 def main():
     # Create output directory
     output_dir = Path('hurricane_analysis_results')
@@ -216,39 +347,47 @@ def main():
     print("Loading city data...")
     cities = load_cities()
     
-    # Initialize and train the risk assessor
-    print("Initializing and training risk assessor...")
-    assessor = WeightedHurricaneRiskAssessor()
-    data = assessor.load_and_prepare_data()
-    assessor.train_model(data)
+    # Initialize and train both assessors
+    print("Initializing and training assessors...")
+    svm_assessor = WeightedHurricaneRiskAssessor()
+    kde_assessor = KDEHurricaneRiskAssessor()
     
-    # Perform spatial correlation analysis
-    print("Performing spatial correlation analysis...")
-    correlation_stats = assessor.perform_spatial_correlation_analysis(data)
-    correlation_report = format_correlation_report(correlation_stats)
-
-    # Save correlation report
-    correlation_report_path = output_dir / 'spatial_correlation_report.txt'
-    with open(correlation_report_path, 'w') as f:
-        f.write(correlation_report)
-
-    print(f"Spatial correlation report saved to: {correlation_report_path}")
+    # Load and prepare data
+    data = svm_assessor.load_and_prepare_data()
     
-    # Analyze current season
+    # Train both models
+    print("Training SVM model...")
+    svm_assessor.train_model(data)
+    
+    print("Training KDE model...")
+    kde_assessor.fit(data)
+    
+    # Analyze current season with both models
     current_year = 2023
     print(f"Analyzing {current_year} hurricane season...")
-    season_results = analyze_hurricane_season(assessor, cities, current_year)
+    season_results = analyze_hurricane_season_combined(
+        svm_assessor, 
+        kde_assessor, 
+        cities, 
+        current_year
+    )
     
-    # Generate and save report
-    print("Generating risk report...")
-    report = format_risk_report(season_results)
+    # Generate and save combined report
+    print("Generating combined risk report...")
+    report = format_combined_risk_report(season_results)
     report_path = output_dir / 'hurricane_risk_report.txt'
     with open(report_path, 'w') as f:
         f.write(report)
     
-    # Create visualization
-    print("Generating risk map...")
-    plot_risk_map(season_results, cities)
+    # Create visualization comparing both methods
+    print("Generating comparison risk maps...")
+    plot_combined_risk_map(season_results, cities)
+    
+    # Plot KDE density map
+    print("Generating KDE density map...")
+    kde_assessor.plot_risk_density()
+    plt.savefig(output_dir / 'kde_density_map.png', dpi=300, bbox_inches='tight')
+    plt.close()
     
     # Save detailed results to CSV
     results_path = output_dir / 'hurricane_risk_analysis.csv'
@@ -257,7 +396,8 @@ def main():
     print("\nAnalysis complete!")
     print(f"Report saved to: {report_path}")
     print(f"Detailed results saved to: {results_path}")
-    print("Risk map saved as: hurricane_risk_map.png")
+    print("Risk comparison map saved as: hurricane_risk_comparison_map.png")
+    print("KDE density map saved as: kde_density_map.png")
 
 if __name__ == "__main__":
     main()

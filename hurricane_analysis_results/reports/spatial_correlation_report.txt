@@ -1,0 +1,46 @@
+Spatial Correlation Analysis Report
+
+========================================
+
+
+Climate Factor Correlations with Hurricane Intensity:
+
+
+SST:
+  Number of valid grid points: 0
+  Mean correlation: 0.000
+  Median correlation: 0.000
+  Maximum correlation: 0.000
+  Minimum correlation: 0.000
+  Standard deviation: 0.000
+  Interpretation: Weak correlation with hurricane intensity
+
+
+WIND_SHEAR:
+  Number of valid grid points: 0
+  Mean correlation: 0.000
+  Median correlation: 0.000
+  Maximum correlation: 0.000
+  Minimum correlation: 0.000
+  Standard deviation: 0.000
+  Interpretation: Weak correlation with hurricane intensity
+
+
+ONI:
+  Number of valid grid points: 182
+  Mean correlation: -0.012
+  Median correlation: -0.040
+  Maximum correlation: 0.468
+  Minimum correlation: -0.657
+  Standard deviation: 0.216
+  Interpretation: Weak correlation with hurricane intensity
+
+
+AMO:
+  Number of valid grid points: 0
+  Mean correlation: 0.000
+  Median correlation: 0.000
+  Maximum correlation: 0.000
+  Minimum correlation: 0.000
+  Standard deviation: 0.000
+  Interpretation: Weak correlation with hurricane intensity
