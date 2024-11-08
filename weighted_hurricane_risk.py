@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import xarray as xr
 from pathlib import Path
@@ -575,61 +575,87 @@ class WeightedHurricaneRiskAssessor:
     
     def train_model(self, data):
         """
-        Train the SVM model with weighted features, handling NaN values properly
+        Train the SVM model with improved handling of imbalanced data and feature engineering
         """
-        # Prepare features including weighted risk score
-        feature_cols = ['sst', 'wind_shear', 'oni', 'amo', 'Latitude', 'Longitude', 'weighted_risk']
+        print("\nEngineering features...")
+        # Add derived features
+        data = self._engineer_features(data)
         
-        # First check for any NaN values in the feature columns
-        print("\nChecking for NaN values in features before processing:")
-        print(data[feature_cols].isnull().sum())
+        # Prepare features
+        feature_cols = [
+            'sst', 'wind_shear', 'oni', 'amo', 'Latitude', 'Longitude',
+            'weighted_risk', 'sst_anomaly', 'wind_pressure_ratio',
+            'location_risk'
+        ]
         
-        # Handle any remaining NaN values in the feature columns
-        data_clean = data.copy()
-        for col in feature_cols:
-            if data_clean[col].isnull().any():
-                # Fill NaN with column median
-                median_val = data_clean[col].median()
-                if pd.isna(median_val):  # If median is also NaN
-                    if col in ['sst', 'Latitude', 'Longitude']:
-                        data_clean[col] = data_clean[col].fillna(data_clean[col].mean())
-                    else:
-                        data_clean[col] = data_clean[col].fillna(0)
+        X = data[feature_cols]
+        y = data['risk_category']
+        
+        # Print NaN check before cleaning
+        print("\nChecking for NaN values before cleaning:")
+        print(X.isnull().sum())
+        
+        # Handle NaN values explicitly
+        print("\nHandling missing values...")
+        for col in X.columns:
+            if X[col].isnull().any():
+                if col in ['sst', 'sst_anomaly']:
+                    X[col] = X[col].fillna(28.0)
+                elif col == 'wind_shear':
+                    X[col] = X[col].fillna(10.0)
+                elif col == 'wind_pressure_ratio':
+                    X[col] = X[col].fillna(X[col].mean())
+                elif col == 'weighted_risk':
+                    X[col] = X[col].fillna(0.5)
                 else:
-                    data_clean[col] = data_clean[col].fillna(median_val)
-        
-        X = data_clean[feature_cols]
-        y = data_clean['risk_category']
+                    X[col] = X[col].fillna(0.0)
         
         # Verify no NaN values remain
         print("\nChecking for NaN values after cleaning:")
         print(X.isnull().sum())
         
-        # Split the data
+        # Calculate class weights based on inverse frequency
+        class_counts = y.value_counts()
+        total_samples = len(y)
+        class_weights = {
+            cls: total_samples / (len(class_counts) * count) 
+            for cls, count in class_counts.items()
+        }
+        
+        print("\nClass weights:", class_weights)
+        
+        # Split with stratification
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42
+            X, y, test_size=0.2, random_state=42, stratify=y
         )
         
-        # Scale the features
+        # Scale features
         X_train_scaled = self.scaler.fit_transform(X_train)
         X_test_scaled = self.scaler.transform(X_test)
         
-        # Define parameter grid with more conservative values
+        # Simplified parameter grid to start
         param_grid = {
-            'C': [1, 10],  # Simplified parameter grid
-            'gamma': ['scale', 'auto'],
-            'kernel': ['rbf']
+            'C': [1, 10],
+            'gamma': ['scale'],
+            'kernel': ['rbf'],
+            'class_weight': ['balanced'],
+            'decision_function_shape': ['ovr']
         }
         
-        # Perform grid search with error_score='raise' to debug any remaining issues
-        svm = SVC(probability=True, class_weight='balanced')
+        print("\nTraining SVM model with parameters:", param_grid)
+        
+        # Use SVC with probability estimates
+        svm = SVC(probability=True)
+        
+        # Perform grid search with cross-validation and error handling
         grid_search = GridSearchCV(
             svm, 
             param_grid, 
             cv=5, 
             scoring='f1_weighted', 
             n_jobs=-1,
-            error_score='raise'  # This will help identify any remaining issues
+            verbose=1,
+            error_score='raise'  # Raise errors for debugging
         )
         
         try:
@@ -642,16 +668,68 @@ class WeightedHurricaneRiskAssessor:
             print("\nClassification Report:")
             print(classification_report(y_test, y_pred))
             
-            self.plot_confusion_matrix(y_test, y_pred)
-            self.plot_feature_importance(X_train, y_train)
-            
             return self.model
             
         except Exception as e:
-            print(f"Error during model training: {str(e)}")
-            print("\nDetailed feature statistics:")
+            print("\nError during model training:", str(e))
+            print("\nFeature statistics:")
             print(X.describe())
             raise
+
+    def _engineer_features(self, data):
+        """
+        Engineer additional features with careful NaN handling
+        """
+        print("Adding engineered features...")
+        df = data.copy()
+        
+        # SST anomaly from typical hurricane-supporting temperatures
+        df['sst_anomaly'] = df['sst'] - 26.5
+        
+        # Wind-Pressure relationship with error handling
+        df['wind_pressure_ratio'] = np.where(
+            df['Pressure'] > 0,
+            df['Wind'] / df['Pressure'],
+            np.nan
+        )
+        
+        # Location-based risk
+        df['location_risk'] = df.apply(
+            lambda row: self._calculate_location_risk(row['Latitude'], row['Longitude']),
+            axis=1
+        )
+        
+        # Print feature statistics
+        print("\nNew feature statistics:")
+        print(df[['sst_anomaly', 'wind_pressure_ratio', 'location_risk']].describe())
+        
+        return df
+
+    def _calculate_location_risk(self, lat, lon):
+        """Calculate location-based risk based on historical hurricane patterns"""
+        # Gulf of Mexico bounds
+        gulf_bounds = {
+            'lat': (23.5, 30.5),
+            'lon': (-98.0, -80.0)
+        }
+        
+        # Caribbean bounds
+        caribbean_bounds = {
+            'lat': (17.0, 23.5),
+            'lon': (-88.0, -75.0)
+        }
+        
+        try:
+            if (gulf_bounds['lat'][0] <= lat <= gulf_bounds['lat'][1] and 
+                gulf_bounds['lon'][0] <= lon <= gulf_bounds['lon'][1]):
+                return 0.8
+            elif (caribbean_bounds['lat'][0] <= lat <= caribbean_bounds['lat'][1] and 
+                caribbean_bounds['lon'][0] <= lon <= caribbean_bounds['lon'][1]):
+                return 0.6
+            else:
+                return 0.4
+        except:
+            return 0.4  # Default risk level if calculation fails
     
     def perform_spatial_correlation_analysis(self, data):
         """
@@ -769,47 +847,34 @@ class WeightedHurricaneRiskAssessor:
                 'amo': 0.0
             }
         
-        # Ensure all required climate conditions are present
-        required_conditions = ['sst', 'wind_shear', 'oni', 'amo']
-        for condition in required_conditions:
-            if condition not in climate_conditions or pd.isna(climate_conditions[condition]):
-                if condition == 'sst':
-                    climate_conditions[condition] = 28.0
-                elif condition == 'wind_shear':
-                    climate_conditions[condition] = 10.0
-                else:
-                    climate_conditions[condition] = 0.0
+        # Calculate derived features
+        climate_conditions['sst_anomaly'] = climate_conditions['sst'] - 26.5
+        climate_conditions['location_risk'] = self._calculate_location_risk(lat, lon)
+        climate_conditions['wind_pressure_ratio'] = 0.05  # Default average value
+        climate_conditions['weighted_risk'] = 0.5  # Default mid-range value
         
-        # Calculate weighted risk score with error handling
-        try:
-            weighted_risk = self.calculate_weighted_features(pd.DataFrame([climate_conditions]))
-            if pd.isna(weighted_risk[0]):
-                weighted_risk = [0.5]  # Default mid-range risk if calculation fails
-        except Exception as e:
-            print(f"Warning: Error calculating weighted risk: {str(e)}")
-            weighted_risk = [0.5]
+        # Create feature vector with all required features in correct order
+        features_dict = {
+            'sst': climate_conditions['sst'],
+            'wind_shear': climate_conditions['wind_shear'],
+            'oni': climate_conditions['oni'],
+            'amo': climate_conditions['amo'],
+            'Latitude': lat,
+            'Longitude': lon,
+            'weighted_risk': climate_conditions['weighted_risk'],
+            'sst_anomaly': climate_conditions['sst_anomaly'],
+            'wind_pressure_ratio': climate_conditions['wind_pressure_ratio'],
+            'location_risk': climate_conditions['location_risk']
+        }
         
-        # Prepare feature vector
-        features = np.array([[
-            climate_conditions['sst'],
-            climate_conditions['wind_shear'],
-            climate_conditions['oni'],
-            climate_conditions['amo'],
-            lat,
-            lon,
-            weighted_risk[0]
-        ]])
-        
-        # Check for NaN values
-        if np.any(np.isnan(features)):
-            print(f"Warning: NaN values detected in features for location {lat}, {lon}")
-            features = np.nan_to_num(features, nan=0.0)
+        # Convert to DataFrame to ensure correct feature order
+        features_df = pd.DataFrame([features_dict])
         
         # Scale features
         try:
-            features_scaled = self.scaler.transform(features)
+            features_scaled = self.scaler.transform(features_df)
         except Exception as e:
-            print(f"Warning: Error scaling features: {str(e)}")
+            print(f"Error during feature scaling: {e}")
             return {
                 'location': {'lat': lat, 'lon': lon},
                 'risk_level': 'Unknown',
@@ -819,12 +884,12 @@ class WeightedHurricaneRiskAssessor:
                 'error': str(e)
             }
         
-        # Get predictions with error handling
+        # Get predictions and probabilities
         try:
             prediction = self.model.predict(features_scaled)[0]
             probabilities = self.model.predict_proba(features_scaled)[0]
             
-            # Determine risk level
+            # Determine risk level based on probabilities
             max_prob = np.max(probabilities)
             if max_prob >= 0.8:
                 risk_level = 'Very High'
@@ -837,36 +902,51 @@ class WeightedHurricaneRiskAssessor:
             else:
                 risk_level = 'Very Low'
             
-            return {
+            # Create assessment dictionary
+            assessment = {
                 'location': {'lat': lat, 'lon': lon},
-                'risk_level': risk_level,
+                'overall_risk_level': risk_level,
                 'predicted_category': prediction,
-                'confidence_score': max_prob,
-                'category_probabilities': dict(zip(self.model.classes_, probabilities))
+                'confidence_score': float(max_prob),
+                'category_probabilities': dict(zip(self.model.classes_, probabilities.tolist())),
+                'contributing_factors': {
+                    'SST': {
+                        'value': climate_conditions['sst'],
+                        'anomaly': climate_conditions['sst_anomaly'],
+                        'impact': 'high' if climate_conditions['sst'] > 26.5 else 'moderate'
+                    },
+                    'Wind Shear': {
+                        'value': climate_conditions['wind_shear'],
+                        'impact': 'high' if climate_conditions['wind_shear'] < 20 else 'low'
+                    },
+                    'Location Risk': {
+                        'value': climate_conditions['location_risk'],
+                        'impact': 'high' if climate_conditions['location_risk'] > 0.6 else 'moderate'
+                    }
+                }
             }
             
+            return assessment
+        
         except Exception as e:
-            print(f"Warning: Error making prediction: {str(e)}")
+            print(f"Error during prediction: {e}")
             return {
                 'location': {'lat': lat, 'lon': lon},
-                'risk_level': 'Unknown',
+                'overall_risk_level': 'Error',
                 'predicted_category': 'Unknown',
                 'confidence_score': 0.0,
                 'category_probabilities': {},
                 'error': str(e)
             }
-    
+
 def main():
-    # Initialize the weighted risk assessor
+    """Main function to test the risk assessor"""
+    # Initialize and train the model
     assessor = WeightedHurricaneRiskAssessor()
-    
-    # Load and prepare data
     data = assessor.load_and_prepare_data()
-    
-    # Train the model
     assessor.train_model(data)
     
-    # Example for assessing New Orleans
+    # Test risk assessment for New Orleans
     assessment = assessor.assess_location_risk(
         29.9511, -90.0715,
         climate_conditions={
@@ -876,17 +956,20 @@ def main():
             'amo': 0.2
         }
     )
-
-    print("Risk Assessment Results:")
+    
+    print("\nRisk Assessment Results:")
+    print(f"Location: {assessment['location']}")
     print(f"Overall Risk Level: {assessment['overall_risk_level']}")
     print(f"Predicted Category: {assessment['predicted_category']}")
     print(f"Confidence Score: {assessment['confidence_score']:.2f}")
     print("\nCategory Probabilities:")
     for category, prob in assessment['category_probabilities'].items():
-        print(f"{category}: {prob:.2%}")
+        print(f"  {category}: {prob:.2%}")
     print("\nContributing Factors:")
     for factor, details in assessment['contributing_factors'].items():
-        print(f"{factor}: {details['value']} ({details['impact']} impact)")
-
+        print(f"  {factor}:")
+        for key, value in details.items():
+            print(f"    {key}: {value}")
+            
 if __name__ == "__main__":
     main()
